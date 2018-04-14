@@ -1,0 +1,14 @@
+/bin/
+
+/.idea/
+/.settings/
+/.gradle/
+/build/
+/run/
+
+/ExampleModule.iml
+/ExampleModule.ipr
+/ExampleModule.iws
+
+.project
+.classpath
