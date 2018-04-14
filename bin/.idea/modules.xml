@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/ExampleModule.iml" filepath="$PROJECT_DIR$/ExampleModule.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ExampleModule_api.iml" filepath="$PROJECT_DIR$/.idea/modules/ExampleModule_api.iml" group="ExampleModule" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ExampleModule_main.iml" filepath="$PROJECT_DIR$/.idea/modules/ExampleModule_main.iml" group="ExampleModule" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ExampleModule_test.iml" filepath="$PROJECT_DIR$/.idea/modules/ExampleModule_test.iml" group="ExampleModule" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IdeaProjects-ExampleModule.iml" filepath="$PROJECT_DIR$/.idea/modules/IdeaProjects-ExampleModule.iml" />
+    </modules>
+  </component>
+</project>
