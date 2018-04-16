@@ -41,7 +41,7 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 						.replace("(","{")
 						.replace(")","}")
 						.replace(".",",")
-						.replace("+",",");
+						.replace("+",",");		
 		try {
 			this.filter = new Filter(specifier);
 			this.populate(this.filterEntities());
@@ -77,10 +77,10 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 			EntityPlayerSP player = Minecraft.getMinecraft().player;
 			Vec3d playervec = player.getPositionVector();
-			Vec3d entityvec = entity.getPositionVector();
-			double dx = playervec.xCoord-entityvec.xCoord;
-			double dy = playervec.yCoord-entityvec.yCoord;
-			double dz = playervec.zCoord-entityvec.zCoord;
+			Vec3d entityvec = entity.getPositionVector();	
+			double dx = playervec.x-entityvec.x;
+			double dy = playervec.y-entityvec.y;
+			double dz = playervec.z-entityvec.z;
 
 
 			this.begin();
@@ -88,9 +88,9 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 			this.add("ENTITYTYPE", entity.getClass().getSimpleName().replace("Entity", ""));
 			this.add("ENTITYNAME", entity.getName());
 			this.add("ENTITYUUID", entity.getUniqueID().toString());
-			this.add("ENTITYXPOSF",entity.getPositionVector().xCoord);
-			this.add("ENTITYYPOSF",entity.getPositionVector().yCoord);
-			this.add("ENTITYZPOSF",entity.getPositionVector().zCoord);
+			this.add("ENTITYXPOSF",entity.getPositionVector().x);
+			this.add("ENTITYYPOSF",entity.getPositionVector().y);
+			this.add("ENTITYZPOSF",entity.getPositionVector().z);
 			this.add("ENTITYXPOS",entity.getPosition().getX());
 			this.add("ENTITYYPOS",entity.getPosition().getY());
 			this.add("ENTITYZPOS",entity.getPosition().getZ());
@@ -162,7 +162,7 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 
 		for(Entity entity : entities) {
-			entitieDist.add(new Entry2<Float, Entity>(entity.getDistanceToEntity(player),entity));
+			entitieDist.add(new Entry2<Float, Entity>(entity.getDistance(player),entity));
 		}
 
 		Collections.sort(entitieDist, new Comparator<Entry2<Float, Entity>>() {
