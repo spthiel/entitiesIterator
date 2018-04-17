@@ -68,6 +68,15 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 		for (int i = 0; i < entities.size(); i++) {
 			Entity entity = entities.get(i).getValue();
 
+			int yaw = (int)(entity.rotationYaw % 360.0F);
+			int realYaw = yaw - 180;
+			
+			int pitch = (int)(entity.rotationPitch % 360.0F);
+			
+			while(realYaw < 0) {
+			realYaw += 360;
+			}
+			
 			EntityPlayerSP player = Minecraft.getMinecraft().player;
 			Vec3d playervec = player.getPositionVector();
 			Vec3d entityvec = entity.getPositionVector();			
@@ -77,18 +86,17 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 			double dz = playervec.z-entityvec.z;
 
 			// Math stolen from calcyawto function.
-			// -dz and -dx to give direction from player to entity.			
-			double yaw = (Math.atan2(-dz, -dx) * degree - 90.0D);
-		    while (yaw < 0) {
-		    	yaw += 360;
+			double yawFromPlayer = (Math.atan2(dz, dx) * degree - 90.0D);
+		    while (yawFromPlayer < 0) {
+		    	yawFromPlayer += 360;
 		    }
 			
-		    String direction = calculatedDirection(yaw);
+		    String direction = calculatedDirection(yawFromPlayer);
 
 		    double dyFromEyes = dy + player.getEyeHeight();
-		    double pitch = (Math.atan2(dyFromEyes, Math.sqrt(dx * dx + dz * dz)) * degree);
-		    while(pitch < 0)
-		    	pitch += 360;
+		    double pitchFromPlayer = (Math.atan2(dyFromEyes, Math.sqrt(dx * dx + dz * dz)) * degree);
+		    while(pitchFromPlayer < 0)
+		    	pitchFromPlayer += 360;
 		      
 			this.begin();
 			this.add("INDEX",i);
@@ -120,8 +128,10 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 			this.add("ENTITYYPOS",entity.getPosition().getY());
 			this.add("ENTITYZPOS",entity.getPosition().getZ());
 			this.add("ENTITYTAGS", entity.getTags().toString());
-			this.add("ENTITYPITCH", (int)pitch);
-			this.add("ENTITYYAW", (int)yaw);
+			this.add("ENTITYPITCH", pitch);
+			this.add("ENTITYYAW", realYaw);
+			this.add("ENTITYPITCHFROMPLAYER", (int)pitchFromPlayer);
+			this.add("ENTITYYAWFROMPLAYER", (int)yawFromPlayer);
 			this.add("ENTITYDIR", direction);
 			this.add("ENTITYDISTANCE", entities.get(i).getKey());
 
