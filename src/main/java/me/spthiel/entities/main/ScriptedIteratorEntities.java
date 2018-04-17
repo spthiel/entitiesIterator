@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -69,11 +70,14 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 			EntityPlayerSP player = Minecraft.getMinecraft().player;
 			Vec3d playervec = player.getPositionVector();
-			Vec3d entityvec = entity.getPositionVector();	
+			Vec3d entityvec = entity.getPositionVector();			
+			
 			double dx = playervec.x-entityvec.x;
 			double dy = playervec.y-entityvec.y;
 			double dz = playervec.z-entityvec.z;
 
+			// Math stolen from calcyawto function.
+			// -dz and -dx to give direction from player to entity.			
 			double yaw = (Math.atan2(-dz, -dx) * degree - 90.0D);
 		    while (yaw < 0) {
 		    	yaw += 360;
@@ -85,12 +89,29 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 		    double pitch = (Math.atan2(dyFromEyes, Math.sqrt(dx * dx + dz * dz)) * degree);
 		    while(pitch < 0)
 		    	pitch += 360;
-			
-			
+		      
 			this.begin();
 			this.add("INDEX",i);
 			this.add("ENTITYTYPE", entity.getClass().getSimpleName().replace("Entity", ""));
-			this.add("ENTITYNAME", entity.getName());
+			
+			// CustomName only applies to Items.  Set Empty String to be replaced later.
+			this.add("ENTITYCUSTOMNAME", "");
+			this.add("ENTITYUNLOCNAME", "");
+			// Special handling for EntityItem
+			if(entity instanceof EntityItem)
+			{
+				EntityItem item = (EntityItem)entity;
+				// TODO:  Determine what to do about "tile" items.  These items show as tile.log.birch or tile.wood.birch.
+								
+				this.add("ENTITYNAME", item.getItem().getUnlocalizedName().replaceAll("item\\.", ""));
+				if(item.hasCustomName())
+					this.add("ENTITYCUSTOMNAME", item.getCustomNameTag());		
+				this.add("ENTITYUNLOCNAME", item.getItem().getUnlocalizedName().replaceAll("item\\.", ""));			
+			}
+			else
+			{
+				this.add("ENTITYNAME", entity.getName());				
+			}			
 			this.add("ENTITYUUID", entity.getUniqueID().toString());
 			this.add("ENTITYXPOSF",entity.getPositionVector().x);
 			this.add("ENTITYYPOSF",entity.getPositionVector().y);
@@ -168,7 +189,7 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 			return "SOUTH";
 		
 	}
-	
+
 	private List<Entry2<Float,Entity>> filterEntities() {
 		List<Entity> entities = getEntities();
 		List<Entity> filtered = new ArrayList<Entity>();
@@ -207,7 +228,7 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	private String getSpecifier(String iteratorName) {
 		Matcher matcher = PATTERN_SPECIFIER_OUTER.matcher(iteratorName);
-		return matcher.matches() ? matcher.group(1).trim().toLowerCase() : null;
+		return matcher.matches() ? matcher.group(1).trim() : null;
 	}
 
 	@Override
