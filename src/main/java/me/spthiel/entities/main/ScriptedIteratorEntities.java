@@ -25,6 +25,7 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	private static final String NAME = "entities";
 	private static final Pattern PATTERN_SPECIFIER_OUTER = Pattern.compile("^" + NAME + "(\\(.+\\))$");
+	private static final double degree = 180.0D / Math.PI;
 	private Filter filter;
 
 	// {range: 5,filter:[{type:item,name:main,include:true}]}
@@ -66,15 +67,6 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 		for (int i = 0; i < entities.size(); i++) {
 			Entity entity = entities.get(i).getValue();
 
-			int yaw = (int)(entity.rotationYaw % 360.0F);
-			int realYaw = yaw - 180;
-
-			int pitch = (int)(entity.rotationPitch % 360.0F);
-
-			while(realYaw < 0) {
-				realYaw += 360;
-			}
-
 			EntityPlayerSP player = Minecraft.getMinecraft().player;
 			Vec3d playervec = player.getPositionVector();
 			Vec3d entityvec = entity.getPositionVector();	
@@ -82,7 +74,19 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 			double dy = playervec.y-entityvec.y;
 			double dz = playervec.z-entityvec.z;
 
+			double yaw = (Math.atan2(-dz, -dx) * degree - 90.0D);
+		    while (yaw < 0) {
+		    	yaw += 360;
+		    }
+			
+		    String direction = calculatedDirection(yaw);
 
+		    double dyFromEyes = dy + player.getEyeHeight();
+		    double pitch = (Math.atan2(dyFromEyes, Math.sqrt(dx * dx + dz * dz)) * degree);
+		    while(pitch < 0)
+		    	pitch += 360;
+			
+			
 			this.begin();
 			this.add("INDEX",i);
 			this.add("ENTITYTYPE", entity.getClass().getSimpleName().replace("Entity", ""));
@@ -95,8 +99,9 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 			this.add("ENTITYYPOS",entity.getPosition().getY());
 			this.add("ENTITYZPOS",entity.getPosition().getZ());
 			this.add("ENTITYTAGS", entity.getTags().toString());
-			this.add("ENTITYPITCH", pitch);
-			this.add("ENTITYYAW", realYaw);
+			this.add("ENTITYPITCH", (int)pitch);
+			this.add("ENTITYYAW", (int)yaw);
+			this.add("ENTITYDIR", direction);
 			this.add("ENTITYDISTANCE", entities.get(i).getKey());
 
 			this.add("ENTITYDX",dx);
@@ -143,6 +148,27 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	}
 
+	private String calculatedDirection(double yaw) {
+		float dividePoint = 22.5F;
+		if( yaw > 1*dividePoint && yaw < 3 * dividePoint )
+			return "SOUTHWEST";
+		else if ( yaw > 3*dividePoint && yaw < 5*dividePoint )
+			return "WEST"; 
+		else if ( yaw > 5*dividePoint && yaw < 7*dividePoint )
+			return "NORTHWEST";
+		else if ( yaw > 7*dividePoint && yaw < 9*dividePoint )
+			return "NORTH";
+		else if ( yaw > 9*dividePoint && yaw < 11*dividePoint )
+			return "NORTHEAST";
+		else if ( yaw > 11*dividePoint && yaw < 13*dividePoint )
+			return "EAST";
+		else if ( yaw > 13*dividePoint && yaw < 15*dividePoint )
+			return "SOUTHEAST";
+		else
+			return "SOUTH";
+		
+	}
+	
 	private List<Entry2<Float,Entity>> filterEntities() {
 		List<Entity> entities = getEntities();
 		List<Entity> filtered = new ArrayList<Entity>();
