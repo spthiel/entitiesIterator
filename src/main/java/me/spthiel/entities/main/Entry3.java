@@ -2,6 +2,7 @@ package me.spthiel.entities.main;
 
 import java.util.Map;
 
+@Deprecated
 public class Entry3<K,V,V2> implements Map.Entry<K,V> {
 
 	private K key;

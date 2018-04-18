@@ -14,7 +14,7 @@ import java.util.List;
 public class Filter{
 
 	//                 Type   Name   Inverse
-	private List<Entry3<Class<?>,String,Boolean>> filters;
+	private List<FilterEntry> filters;
 	private int range;
 	private static final String[] entityClassPrefixes = {
 			"net.minecraft.entity.monster.Entity",
@@ -27,12 +27,12 @@ public class Filter{
 	public Filter(String param) throws Exception{
 
 		if(param == null) {
-			filters = new ArrayList<Entry3<Class<?>,String,Boolean>>();
+			filters = new ArrayList<FilterEntry>();
 			range = -1;
 			return;
 		}
 
-		filters = new ArrayList<Entry3<Class<?>,String,Boolean>>();
+		filters = new ArrayList<FilterEntry>();
 		JSONObject json = new JSONObject(param);
 		if(json.has("range")) {
 			range = json.getInt("range");
@@ -42,7 +42,7 @@ public class Filter{
 		if(json.has("filters")) {
 			Object o = json.get("filters");
 			if(o instanceof String) {
-				filters.add(new Entry3<Class<?>, String, Boolean>(null,(String)o,false));
+				filters.add(new FilterEntry(null,(String)o,false));
 			} else if(o instanceof JSONObject) {
 				addFilter((JSONObject) o);						
 			} else if(o instanceof JSONArray) {
@@ -67,8 +67,8 @@ public class Filter{
 		// only after going thru all filters (ensuring no inverses) do we return "allow"
 		boolean allow = false;
 		
-		for(Entry3<Class<?>,String,Boolean> filter : this.filters) {
-			boolean inverse = filter.getValue2();
+		for(FilterEntry filter : this.filters) {
+			boolean inverse = filter.getInverse();
 
 			String entityName;
 			if(entity instanceof EntityItem)
@@ -77,9 +77,9 @@ public class Filter{
 				entityName = entity.getName();
 			
 			
-			if(filter.getValue() != null && !entityName.matches(filter.getValue()))
+			if(filter.getName() != null && !entityName.matches(filter.getName()))
 				continue;
-			if(filter.getKey() != null && !filter.getKey().isInstance(entity))
+			if(filter.getFilterClass()!= null && !filter.getFilterClass().isInstance(entity))
 				continue;
 			
 			// If we have arrived here, this means we have matched on whatever our filter is.
@@ -94,41 +94,38 @@ public class Filter{
 		return allow;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void addFilter(JSONObject object) throws Exception {
-
-		Entry3<Class<?>,String,Boolean> toPut = new Entry3<Class<?>,String,Boolean>();
-		if(object.has("type"))
-		{
-			Class<?> classMatch = null;
+		Class<? extends Entity> classMatch = null;
+		String name = null;
+		Boolean inverse = false;		
+		
+		if(object.has("name"))
+			name = object.getString("name");
+		if(object.has("inverse"))
+			inverse = object.getBoolean("inverse");		
+		
+		if(object.has("type")) {
 			String suffix = object.getString("type");
-			for(String prefix : entityClassPrefixes)
-			{
-				try
-				{
+			for(String prefix : entityClassPrefixes) {
+				try	{
 					String className = prefix + suffix;
-					classMatch = Class.forName(className);
+					classMatch = (Class<? extends Entity>)Class.forName(className);																				
+					
 					// If we got here, classMatch succeeded and we have found a valid type.
 					break;
-
 				}
-				catch(ClassNotFoundException ex)
-				{
+				catch(ClassNotFoundException ex) {
 					// This indicates that no class was found with this particular name.
 					classMatch = null;
 				}
 			}
-			if(classMatch == null)
+			if(classMatch == null) {			
 				throw new Exception("Unable to locate class with suffix: " + suffix);
-			
-			toPut.setKey(classMatch);
-			toPut.setValue(null);
-			toPut.setValue2(false);
+			}
 		}
-		if(object.has("name"))
-			toPut.setValue(object.getString("name"));
-		if(object.has("inverse"))
-			toPut.setValue2(object.getBoolean("inverse"));
-		filters.add(toPut);
+
+		filters.add(new FilterEntry(classMatch, name, inverse));
 	}
 
 }
