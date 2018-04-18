@@ -1,9 +1,19 @@
 package me.spthiel.entities.main;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import me.spthiel.entities.ModuleInfo;
 import me.spthiel.entities.JSON.JSONException;
 import net.eq2online.macros.scripting.ScriptedIterator;
-import net.eq2online.macros.scripting.api.*;
+import net.eq2online.macros.scripting.api.APIVersion;
+import net.eq2online.macros.scripting.api.IMacro;
+import net.eq2online.macros.scripting.api.IScriptActionProvider;
+import net.eq2online.macros.scripting.api.IScriptedIterator;
 import net.eq2online.macros.scripting.parser.ScriptContext;
 import net.eq2online.util.Game;
 import net.minecraft.client.Minecraft;
@@ -16,10 +26,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.Vec3d;
-
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @APIVersion(ModuleInfo.API_VERSION)
 public class ScriptedIteratorEntities extends ScriptedIterator implements IScriptedIterator{
