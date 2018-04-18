@@ -20,7 +20,8 @@ public class Filter{
 			"net.minecraft.entity.monster.Entity",
 			"net.minecraft.entity.item.Entity",
 			"net.minecraft.entity.player.Entity",
-			"net.minecraft.entity.passive.Entity"
+			"net.minecraft.entity.passive.Entity",
+			"net.minecraft.entity.Entity"
 	};
 
 	public Filter(String param) throws Exception{
@@ -60,7 +61,12 @@ public class Filter{
 				return false;
 			}
 		}
-
+		
+		// if we do not find a filter which matches, allow will remain false.
+		// if we do find a filter that matches, it will flip to true.
+		// only after going thru all filters (ensuring no inverses) do we return "allow"
+		boolean allow = false;
+		
 		for(Entry3<Class<?>,String,Boolean> filter : this.filters) {
 			boolean inverse = filter.getValue2();
 
@@ -69,15 +75,23 @@ public class Filter{
 				entityName = ((EntityItem)entity).getItem().getUnlocalizedName().replaceAll("item\\.", "");
 			else
 				entityName = entity.getName();
-						
+			
+			
 			if(filter.getValue() != null && !entityName.matches(filter.getValue()))
 				continue;
 			if(filter.getKey() != null && !filter.getKey().isInstance(entity))
 				continue;
-						
-			return true;
+			
+			// If we have arrived here, this means we have matched on whatever our filter is.
+			
+			// If we passed on an inverse filter, then we automatically reject.
+			if(inverse)
+				return false;
+			
+			// if this is not an inverse, then we should include it (unless an inverse is found on future iteration)
+			allow = true;
 		}
-		return false;
+		return allow;
 	}
 
 	private void addFilter(JSONObject object) throws Exception {
