@@ -105,7 +105,8 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 			
 		    String direction = calculatedDirection(yawFromPlayer);
 
-		    double dyFromEyes = dy + player.getEyeHeight();
+		    // Adding difference of player's eyeheight and half the entity's height will give the center of the entity.
+		    double dyFromEyes = dy + player.getEyeHeight() - (entity.height / 2);
 		    double pitchFromPlayer = (Math.atan2(dyFromEyes, Math.sqrt(dx * dx + dz * dz)) * degree);
 		    while(pitchFromPlayer < 0)
 		    	pitchFromPlayer += 360;
