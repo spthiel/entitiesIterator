@@ -1,11 +1,11 @@
 package me.spthiel.entities.main;
 
 import me.spthiel.entities.ModuleInfo;
+import me.spthiel.entities.JSON.JSONException;
 import net.eq2online.macros.scripting.ScriptedIterator;
 import net.eq2online.macros.scripting.api.*;
 import net.eq2online.macros.scripting.parser.ScriptContext;
 import net.eq2online.util.Game;
-import net.eq2online.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.enchantment.Enchantment;
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 public class ScriptedIteratorEntities extends ScriptedIterator implements IScriptedIterator{
 
 	private static final String NAME = "entities";
-	private static final Pattern PATTERN_SPECIFIER_OUTER = Pattern.compile("^" + NAME + "(\\(.+\\))$");
+	private static final Pattern PATTERN_SPECIFIER_OUTER = Pattern.compile("^" + NAME + "\\((.+)\\)$");
 	private static final double degree = 180.0D / Math.PI;
 	private Filter filter;
 
@@ -38,19 +38,24 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	public ScriptedIteratorEntities(IScriptActionProvider provider, IMacro macro, String iteratorName) {
 		super(provider, macro);
-		String specifier = this.getSpecifier(
-				iteratorName)
-						.replace("(","{")
-						.replace(")","}")
-						.replace(".",",")
-						.replace("+",",");		
+		String specifier = this.getSpecifier(iteratorName);
+		if(specifier == null)
+		{
+			provider.actionAddChatMessage("Error attempting to parse entities parameter: " + iteratorName);
+			return;
+		}
+		
 		try {
 			this.filter = new Filter(specifier);
-			this.populate(this.filterEntities());
-		} catch(Exception e) {
+			this.populate(this.filterEntities());			
+		} 
+		catch(JSONException e) {
+			provider.actionAddChatMessage("JSONException: " + e.getMessage());
+		}
+		catch(Exception e) {
 			System.out.println("Error in ScriptedIteratorEntities '" + specifier + "'");
 			e.printStackTrace();
-			provider.actionAddChatMessage(e.getCause() + ": " + e.getMessage());
+			provider.actionAddChatMessage(e.toString());
 		}
 	}
 
