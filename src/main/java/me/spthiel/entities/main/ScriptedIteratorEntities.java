@@ -44,12 +44,13 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	public ScriptedIteratorEntities(IScriptActionProvider provider, IMacro macro, String iteratorName) {
 		super(provider, macro);
-		String specifier = this.getSpecifier(iteratorName);
+		String specifier = this.getSpecifier(iteratorName);		
 		if(specifier == null)
 		{
 			provider.actionAddChatMessage("Error attempting to parse entities parameter: " + iteratorName);
 			return;
 		}
+		specifier = "{" + specifier + "}";
 		
 		try {
 			this.filter = new Filter(specifier);
