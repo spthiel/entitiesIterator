@@ -33,13 +33,6 @@ public enum EntityTypes {
 		this.inverse = inverse;
 	}
 
-	public boolean entityIsInstanceOf(Entity entity) {
-		for(Class c : minecraftclass)
-			if(c.isInstance(entity))
-				return !inverse;
-		return inverse;
-	}
-
 	public static List<EntityTypes> getApplicableTypes(String regex) {
 		List<EntityTypes> out = new ArrayList<EntityTypes>();
 		for(EntityTypes type : EntityTypes.values()) {
@@ -51,5 +44,9 @@ public enum EntityTypes {
 			}
 		}
 		return out.size() > 0 ? out : null;
+	}
+
+	public Class<? extends Entity>[] getMinecraftclass() {
+		return minecraftclass;
 	}
 }

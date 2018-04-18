@@ -106,7 +106,21 @@ public class Filter{
 			inverse = object.getBoolean("inverse");		
 		
 		if(object.has("type")) {
-			String suffix = object.getString("type");
+			String suffix = object.getString("type");		
+			List<EntityTypes> eTypes = EntityTypes.getApplicableTypes(suffix);
+			if(eTypes != null) {
+				for(EntityTypes eType : eTypes) {
+					for(Class<? extends Entity> eTypeClass : eType.getMinecraftclass()) {
+						filters.add(new FilterEntry(eTypeClass, name, inverse));
+					}						
+				}				
+				// because we found an eType that matched, we will return now.
+				return;			
+			}
+		}
+		
+		if(object.has("mctype")) {
+			String suffix = object.getString("mctype");
 			for(String prefix : entityClassPrefixes) {
 				try	{
 					String className = prefix + suffix;
