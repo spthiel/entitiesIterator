@@ -192,25 +192,26 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	}
 
+	// Calculates based on "REAL" yaw where 0 & 360 = North, 180 = South, and so on.
+	// Minecraft (F3 menu) does not use this.
 	private String calculatedDirection(double yaw) {
 		float dividePoint = 22.5F;
 		if( yaw > 1*dividePoint && yaw < 3 * dividePoint )
-			return "SOUTHWEST";
-		else if ( yaw > 3*dividePoint && yaw < 5*dividePoint )
-			return "WEST"; 
-		else if ( yaw > 5*dividePoint && yaw < 7*dividePoint )
-			return "NORTHWEST";
-		else if ( yaw > 7*dividePoint && yaw < 9*dividePoint )
-			return "NORTH";
-		else if ( yaw > 9*dividePoint && yaw < 11*dividePoint )
 			return "NORTHEAST";
-		else if ( yaw > 11*dividePoint && yaw < 13*dividePoint )
-			return "EAST";
-		else if ( yaw > 13*dividePoint && yaw < 15*dividePoint )
+		else if ( yaw > 3*dividePoint && yaw < 5*dividePoint )
+			return "EAST"; 
+		else if ( yaw > 5*dividePoint && yaw < 7*dividePoint )
 			return "SOUTHEAST";
-		else
+		else if ( yaw > 7*dividePoint && yaw < 9*dividePoint )
 			return "SOUTH";
-		
+		else if ( yaw > 9*dividePoint && yaw < 11*dividePoint )
+			return "SOUTHWEST";
+		else if ( yaw > 11*dividePoint && yaw < 13*dividePoint )
+			return "WEST";
+		else if ( yaw > 13*dividePoint && yaw < 15*dividePoint )
+			return "NORTHWEST";
+		else
+			return "NORTH";		
 	}
 
 	private List<Entry2<Float,Entity>> filterEntities() {
