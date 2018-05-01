@@ -155,8 +155,8 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 			
 			if(entity instanceof EntityLivingBase) {
 				EntityLivingBase elb = (EntityLivingBase)entity;
-				this.add("ENTITYHEALTH", elb.getHealth());
-				this.add("ENTITYMAXHEALTH", elb.getMaxHealth());
+				this.add("ENTITYHEALTH", (int)elb.getHealth());
+				this.add("ENTITYMAXHEALTH", (int)elb.getMaxHealth());
 			}
 
 			// Equipment
