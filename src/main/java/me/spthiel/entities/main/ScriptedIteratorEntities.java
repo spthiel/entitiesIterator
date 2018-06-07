@@ -1,30 +1,38 @@
 package me.spthiel.entities.main;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import me.spthiel.entities.ModuleInfo;
+import me.spthiel.entities.JSON.JSONException;
 import net.eq2online.macros.scripting.ScriptedIterator;
-import net.eq2online.macros.scripting.api.*;
+import net.eq2online.macros.scripting.api.APIVersion;
+import net.eq2online.macros.scripting.api.IMacro;
+import net.eq2online.macros.scripting.api.IScriptActionProvider;
+import net.eq2online.macros.scripting.api.IScriptedIterator;
 import net.eq2online.macros.scripting.parser.ScriptContext;
 import net.eq2online.util.Game;
-import net.eq2online.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @APIVersion(ModuleInfo.API_VERSION)
 public class ScriptedIteratorEntities extends ScriptedIterator implements IScriptedIterator{
 
 	private static final String NAME = "entities";
-	private static final Pattern PATTERN_SPECIFIER_OUTER = Pattern.compile("^" + NAME + "(\\(.+\\))$");
+	private static final Pattern PATTERN_SPECIFIER_OUTER = Pattern.compile("^" + NAME + "\\((.+)\\)$");
+	private static final double degree = 180.0D / Math.PI;
 	private Filter filter;
 
 	// {range: 5,filter:[{type:item,name:main,include:true}]}
@@ -36,19 +44,25 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	public ScriptedIteratorEntities(IScriptActionProvider provider, IMacro macro, String iteratorName) {
 		super(provider, macro);
-		String specifier = this.getSpecifier(
-				iteratorName)
-						.replace("(","{")
-						.replace(")","}")
-						.replace(".",",")
-						.replace("+",",");
+		String specifier = this.getSpecifier(iteratorName);		
+		if(specifier == null)
+		{
+			provider.actionAddChatMessage("Error attempting to parse entities parameter: " + iteratorName);
+			return;
+		}
+		specifier = "{" + specifier + "}";
+		
 		try {
 			this.filter = new Filter(specifier);
-			this.populate(this.filterEntities());
-		} catch(Exception e) {
+			this.populate(this.filterEntities());			
+		} 
+		catch(JSONException e) {
+			provider.actionAddChatMessage("JSONException: " + e.getMessage());
+		}
+		catch(Exception e) {
 			System.out.println("Error in ScriptedIteratorEntities '" + specifier + "'");
 			e.printStackTrace();
-			provider.actionAddChatMessage(e.getCause() + ": " + e.getMessage());
+			provider.actionAddChatMessage(e.toString());
 		}
 	}
 
@@ -68,35 +82,70 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 			int yaw = (int)(entity.rotationYaw % 360.0F);
 			int realYaw = yaw - 180;
-
+			
 			int pitch = (int)(entity.rotationPitch % 360.0F);
-
+			
 			while(realYaw < 0) {
-				realYaw += 360;
+			realYaw += 360;
 			}
-
+			
 			EntityPlayerSP player = Minecraft.getMinecraft().player;
 			Vec3d playervec = player.getPositionVector();
-			Vec3d entityvec = entity.getPositionVector();
-			double dx = playervec.xCoord-entityvec.xCoord;
-			double dy = playervec.yCoord-entityvec.yCoord;
-			double dz = playervec.zCoord-entityvec.zCoord;
+			Vec3d entityvec = entity.getPositionVector();			
+			
+			double dx = playervec.x-entityvec.x;
+			double dy = playervec.y-entityvec.y;
+			double dz = playervec.z-entityvec.z;
 
+			// Math stolen from calcyawto function.
+			double yawFromPlayer = (Math.atan2(dz, dx) * degree - 90.0D);
+		    while (yawFromPlayer < 0) {
+		    	yawFromPlayer += 360;
+		    }
+			
+		    String direction = calculatedDirection(yawFromPlayer);
 
+		    // Adding difference of player's eyeheight and half the entity's height will give the center of the entity.
+		    double dyFromEyes = dy + player.getEyeHeight() - (entity.height / 2);
+		    double pitchFromPlayer = (Math.atan2(dyFromEyes, Math.sqrt(dx * dx + dz * dz)) * degree);
+		    while(pitchFromPlayer < 0)
+		    	pitchFromPlayer += 360;
+		      
 			this.begin();
 			this.add("INDEX",i);
 			this.add("ENTITYTYPE", entity.getClass().getSimpleName().replace("Entity", ""));
-			this.add("ENTITYNAME", entity.getName());
+			
+			// CustomName only applies to Items.  Set Empty String to be replaced later.
+			this.add("ENTITYCUSTOMNAME", "");
+			this.add("ENTITYUNLOCNAME", "");
+			// Special handling for EntityItem
+			if(entity instanceof EntityItem)
+			{
+				EntityItem item = (EntityItem)entity;
+				// TODO:  Determine what to do about "tile" items.  These items show as tile.log.birch or tile.wood.birch.
+								
+				this.add("ENTITYNAME", item.getItem().getUnlocalizedName().replaceAll("item\\.", ""));
+				if(item.hasCustomName())
+					this.add("ENTITYCUSTOMNAME", item.getCustomNameTag());		
+				this.add("ENTITYUNLOCNAME", item.getItem().getUnlocalizedName().replaceAll("item\\.", ""));			
+			}
+			else
+			{
+				this.add("ENTITYNAME", entity.getName());				
+			}			
 			this.add("ENTITYUUID", entity.getUniqueID().toString());
-			this.add("ENTITYXPOSF",entity.getPositionVector().xCoord);
-			this.add("ENTITYYPOSF",entity.getPositionVector().yCoord);
-			this.add("ENTITYZPOSF",entity.getPositionVector().zCoord);
+			this.add("ENTITYXPOSF",entity.getPositionVector().x);
+			this.add("ENTITYYPOSF",entity.getPositionVector().y);
+			this.add("ENTITYZPOSF",entity.getPositionVector().z);
 			this.add("ENTITYXPOS",entity.getPosition().getX());
 			this.add("ENTITYYPOS",entity.getPosition().getY());
 			this.add("ENTITYZPOS",entity.getPosition().getZ());
 			this.add("ENTITYTAGS", entity.getTags().toString());
 			this.add("ENTITYPITCH", pitch);
 			this.add("ENTITYYAW", realYaw);
+			this.add("ENTITYPITCHFROMPLAYER", (int)pitchFromPlayer);
+			this.add("ENTITYYAWFROMPLAYER", (int)yawFromPlayer);
+			this.add("ENTITYDIR", direction);
 			this.add("ENTITYDISTANCE", entities.get(i).getKey());
 
 			this.add("ENTITYDX",dx);
@@ -143,6 +192,28 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	}
 
+	// Calculates based on "REAL" yaw where 0 & 360 = North, 180 = South, and so on.
+	// Minecraft (F3 menu) does not use this.
+	private String calculatedDirection(double yaw) {
+		float dividePoint = 22.5F;
+		if( yaw > 1*dividePoint && yaw < 3 * dividePoint )
+			return "NORTHEAST";
+		else if ( yaw > 3*dividePoint && yaw < 5*dividePoint )
+			return "EAST"; 
+		else if ( yaw > 5*dividePoint && yaw < 7*dividePoint )
+			return "SOUTHEAST";
+		else if ( yaw > 7*dividePoint && yaw < 9*dividePoint )
+			return "SOUTH";
+		else if ( yaw > 9*dividePoint && yaw < 11*dividePoint )
+			return "SOUTHWEST";
+		else if ( yaw > 11*dividePoint && yaw < 13*dividePoint )
+			return "WEST";
+		else if ( yaw > 13*dividePoint && yaw < 15*dividePoint )
+			return "NORTHWEST";
+		else
+			return "NORTH";		
+	}
+
 	private List<Entry2<Float,Entity>> filterEntities() {
 		List<Entity> entities = getEntities();
 		List<Entity> filtered = new ArrayList<Entity>();
@@ -162,7 +233,7 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 
 		for(Entity entity : entities) {
-			entitieDist.add(new Entry2<Float, Entity>(entity.getDistanceToEntity(player),entity));
+			entitieDist.add(new Entry2<Float, Entity>(entity.getDistance(player),entity));
 		}
 
 		Collections.sort(entitieDist, new Comparator<Entry2<Float, Entity>>() {
@@ -181,7 +252,7 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	private String getSpecifier(String iteratorName) {
 		Matcher matcher = PATTERN_SPECIFIER_OUTER.matcher(iteratorName);
-		return matcher.matches() ? matcher.group(1).trim().toLowerCase() : null;
+		return matcher.matches() ? matcher.group(1).trim() : null;
 	}
 
 	@Override
