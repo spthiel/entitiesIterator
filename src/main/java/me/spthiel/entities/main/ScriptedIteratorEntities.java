@@ -20,6 +20,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -151,6 +152,12 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 			this.add("ENTITYDX",dx);
 			this.add("ENTITYDY",dy);
 			this.add("ENTITYDZ",dz);
+			
+			if(entity instanceof EntityLivingBase) {
+				EntityLivingBase elb = (EntityLivingBase)entity;
+				this.add("ENTITYHEALTH", (int)elb.getHealth());
+				this.add("ENTITYMAXHEALTH", (int)elb.getMaxHealth());
+			}
 
 			// Equipment
 			List<ItemStack> list = new ArrayList<ItemStack>();
