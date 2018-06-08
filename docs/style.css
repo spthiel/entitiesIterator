@@ -1,3 +1,7 @@
+body {
+	background-color: rgba(0,0,0,.3);
+}
+
 .flex-table :not(.table-header) .table-row-item:not(.empty):hover:after {
 	position: absolute;
 	background: rgb(30,30,30);
