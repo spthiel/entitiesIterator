@@ -75,8 +75,7 @@ public class Filter{
 		// if we do not find a filter which matches, allow will remain false.
 		// if we do find a filter that matches, it will flip to true.
 		// only after going thru all filters (ensuring no inverses) do we return "allow"
-		// wrong, if we set an inverse filter it would say it's not allowed if there's no filter found
-		//boolean allow = false;
+		boolean allow = false;
 		
 		for(Entry4<List<EntityTypes>, String, Boolean,Class<? extends Entity>> filter : this.filters) {
 			boolean inverse = filter.getValue2();
@@ -90,11 +89,15 @@ public class Filter{
 
 			if(filter.getValue() != null && !entityName.matches(filter.getValue())) {
 				debug("continue 1: " + entityName + " " + filter.getValue());
+				if(inverse)
+					allow = true;
 				continue;
 			}
 
 			if(filter.getValue3() != null && !filter.getValue3().isInstance(entity)) {
 				debug("continue 2: " + entity.getClass().getName() + " " + filter.getValue3().getName());
+				if(inverse)
+					allow = true;
 				continue;
 			}
 
@@ -108,8 +111,11 @@ public class Filter{
 						break;
 					}
 				}
-				if (found)
+				if (!found) {
+					if(inverse)
+						allow = true;
 					continue;
+				}
 			}
 			
 			// If we have arrived here, this means we have matched on whatever our filter is.
@@ -120,9 +126,10 @@ public class Filter{
 				debug(this.toString());
 				return false;
 			}
+			allow = true;
 		}
-		debug("Out end");
-		return true;
+		debug("Out end: " + allow);
+		return allow;
 	}
 
 	@SuppressWarnings("unchecked")
