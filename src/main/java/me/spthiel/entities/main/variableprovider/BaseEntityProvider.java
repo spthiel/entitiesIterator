@@ -112,7 +112,7 @@ public class BaseEntityProvider extends EntityVariableProvider {
 		while (pitchFromPlayer < 0)
 			pitchFromPlayer += 360;
 
-		String direction = calculatedDirection(yawFromPlayer);
+		String direction = getDirectionFromYaw(yawFromPlayer);
 
 
 		addVariable(iterator, "PITCHFROMPLAYER", (int) pitchFromPlayer);
@@ -123,23 +123,19 @@ public class BaseEntityProvider extends EntityVariableProvider {
 
 	// Calculates based on "REAL" yaw where 0 & 360 = North, 180 = South, and so on.
 	// Minecraft (F3 menu) does not use this.
-	private String calculatedDirection(double yaw) {
-		float dividePoint = 22.5F;
-		if (yaw > 1 * dividePoint && yaw < 3 * dividePoint)
-			return "NORTHEAST";
-		else if (yaw > 3 * dividePoint && yaw < 5 * dividePoint)
-			return "EAST";
-		else if (yaw > 5 * dividePoint && yaw < 7 * dividePoint)
-			return "SOUTHEAST";
-		else if (yaw > 7 * dividePoint && yaw < 9 * dividePoint)
-			return "SOUTH";
-		else if (yaw > 9 * dividePoint && yaw < 11 * dividePoint)
-			return "SOUTHWEST";
-		else if (yaw > 11 * dividePoint && yaw < 13 * dividePoint)
-			return "WEST";
-		else if (yaw > 13 * dividePoint && yaw < 15 * dividePoint)
-			return "NORTHWEST";
-		else
-			return "NORTH";
+	private String getDirectionFromYaw(double yaw) {
+		float dividePoint = 22.5F; // 360/16
+		float dividedYaw = yaw/dividePoint;
+		
+		if(dividedYaw < 1) return "NORTH";
+		if(dividedYaw < 3) return "NORTHEAST";
+		if(dividedYaw < 5) return "EAST";
+		if(dividedYaw < 7) return "SOUTHEAST";
+		if(dividedYaw < 9) return "SOUTH";
+		if(dividedYaw < 11) return "SOUTHWEST";
+		if(dividedYaw < 13) return "WEST";
+		if(dividedYaw < 15) return "NORTHWEST";
+		
+		return "NORTH";
 	}
 }
