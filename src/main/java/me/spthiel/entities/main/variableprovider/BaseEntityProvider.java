@@ -123,9 +123,9 @@ public class BaseEntityProvider extends EntityVariableProvider {
 
 	// Calculates based on "REAL" yaw where 0 & 360 = North, 180 = South, and so on.
 	// Minecraft (F3 menu) does not use this.
-	private String getDirectionFromYaw(double yaw) {
+	private static String getDirectionFromYaw(double yaw) {
 		float dividePoint = 22.5F; // 360/16
-		float dividedYaw = yaw/dividePoint;
+		double dividedYaw = yaw/dividePoint;
 		
 		if(dividedYaw < 1) return "NORTH";
 		if(dividedYaw < 3) return "NORTHEAST";
