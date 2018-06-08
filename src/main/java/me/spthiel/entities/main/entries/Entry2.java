@@ -1,22 +1,19 @@
-package me.spthiel.entities.main;
+package me.spthiel.entities.main.entries;
 
 import java.util.Map;
 
-@Deprecated
-public class Entry3<K,V,V2> implements Map.Entry<K,V> {
+public class Entry2<K,V> implements Map.Entry<K,V> {
 
 	private K key;
 	private V value;
-	private V2 value2;
 
-	public Entry3() {
+	public Entry2() {
 
 	}
 
-	public Entry3(K key, V value, V2 value2) {
+	public Entry2(K key, V value) {
 		this.key = key;
 		this.value = value;
-		this.value2 = value2;
 	}
 
 	@Override
@@ -40,13 +37,8 @@ public class Entry3<K,V,V2> implements Map.Entry<K,V> {
 		return value;
 	}
 
-	public V2 getValue2() {
-		return value2;
+	@Override
+	public String toString() {
+		return "[" + this.key + "," + this.value + "]";
 	}
-
-	public V2 setValue2(V2 value) {
-		this.value2 = value;
-		return value;
-	}
-
 }

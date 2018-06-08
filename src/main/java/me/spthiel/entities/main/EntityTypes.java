@@ -46,6 +46,14 @@ public enum EntityTypes {
 		return out.size() > 0 ? out : null;
 	}
 
+	public boolean isOfAny(Entity entity) {
+		for(Class mcclass : minecraftclass) {
+			if(mcclass.isInstance(entity))
+				return true;
+		}
+		return false;
+	}
+
 	public Class<? extends Entity>[] getMinecraftclass() {
 		return minecraftclass;
 	}

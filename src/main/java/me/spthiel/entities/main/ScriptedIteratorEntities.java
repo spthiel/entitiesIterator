@@ -1,14 +1,11 @@
 package me.spthiel.entities.main;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import me.spthiel.entities.ModuleInfo;
 import me.spthiel.entities.JSON.JSONException;
+import me.spthiel.entities.ModuleInfo;
+import me.spthiel.entities.main.entries.Entry2;
+import me.spthiel.entities.main.variableprovider.BaseEntityProvider;
+import me.spthiel.entities.main.variableprovider.ItemEntityProvider;
+import me.spthiel.entities.main.variableprovider.LivingEntityProvider;
 import net.eq2online.macros.scripting.ScriptedIterator;
 import net.eq2online.macros.scripting.api.APIVersion;
 import net.eq2online.macros.scripting.api.IMacro;
@@ -28,15 +25,32 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @APIVersion(ModuleInfo.API_VERSION)
-public class ScriptedIteratorEntities extends ScriptedIterator implements IScriptedIterator{
+public class ScriptedIteratorEntities extends ScriptedIterator implements IScriptedIterator {
+
+	private static final ArrayList<EntityVariableProvider> entityVariableProviders = new ArrayList<EntityVariableProvider>();
+
+	private static void setupVariableProvider() {
+		if(!(entityVariableProviders.size() > 0)) {
+			entityVariableProviders.add(new BaseEntityProvider());
+			entityVariableProviders.add(new LivingEntityProvider());
+			entityVariableProviders.add(new ItemEntityProvider());
+			//TODO: Add variable provider
+		}
+	}
 
 	private static final String NAME = "entities";
 	private static final Pattern PATTERN_SPECIFIER_OUTER = Pattern.compile("^" + NAME + "\\((.+)\\)$");
-	private static final double degree = 180.0D / Math.PI;
 	private Filter filter;
 
-	// {range: 5,filter:[{type:item,name:main,include:true}]}
+	// {range: 5,filter:[{type:item,name:main,include:true,extends:classname}]}
 
 	public ScriptedIteratorEntities() {
 		super(null, null);
@@ -45,22 +59,16 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	public ScriptedIteratorEntities(IScriptActionProvider provider, IMacro macro, String iteratorName) {
 		super(provider, macro);
-		String specifier = this.getSpecifier(iteratorName);		
-		if(specifier == null)
-		{
-			provider.actionAddChatMessage("Error attempting to parse entities parameter: " + iteratorName);
-			return;
-		}
-		specifier = "{" + specifier + "}";
-		
+		String specifier = this.getSpecifier(iteratorName);
+		if(specifier != null)
+			specifier = "{" + specifier + "}";
+
 		try {
 			this.filter = new Filter(specifier);
-			this.populate(this.filterEntities());			
-		} 
-		catch(JSONException e) {
+			this.populate(this.filterEntities());
+		} catch (JSONException e) {
 			provider.actionAddChatMessage("JSONException: " + e.getMessage());
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			System.out.println("Error in ScriptedIteratorEntities '" + specifier + "'");
 			e.printStackTrace();
 			provider.actionAddChatMessage(e.toString());
@@ -77,121 +85,17 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 					"HELMET"
 			};
 
-	private void populate(List<Entry2<Float,Entity>> entities) {
+	private void populate(List<Entry2<Float, Entity>> entities) {
 		for (int i = 0; i < entities.size(); i++) {
 			Entity entity = entities.get(i).getValue();
 
-			int yaw = (int)(entity.rotationYaw % 360.0F);
-			int realYaw = yaw - 180;
-			
-			int pitch = (int)(entity.rotationPitch % 360.0F);
-			
-			while(realYaw < 0) {
-			realYaw += 360;
-			}
-			
-			EntityPlayerSP player = Minecraft.getMinecraft().player;
-			Vec3d playervec = player.getPositionVector();
-			Vec3d entityvec = entity.getPositionVector();			
-			
-			double dx = playervec.x-entityvec.x;
-			double dy = playervec.y-entityvec.y;
-			double dz = playervec.z-entityvec.z;
-
-			// Math stolen from calcyawto function.
-			double yawFromPlayer = (Math.atan2(dz, dx) * degree - 90.0D);
-		    while (yawFromPlayer < 0) {
-		    	yawFromPlayer += 360;
-		    }
-			
-		    String direction = calculatedDirection(yawFromPlayer);
-
-		    // Adding difference of player's eyeheight and half the entity's height will give the center of the entity.
-		    double dyFromEyes = dy + player.getEyeHeight() - (entity.height / 2);
-		    double pitchFromPlayer = (Math.atan2(dyFromEyes, Math.sqrt(dx * dx + dz * dz)) * degree);
-		    while(pitchFromPlayer < 0)
-		    	pitchFromPlayer += 360;
-		      
 			this.begin();
-			this.add("INDEX",i);
-			this.add("ENTITYTYPE", entity.getClass().getSimpleName().replace("Entity", ""));
-			
-			// CustomName only applies to Items.  Set Empty String to be replaced later.
-			this.add("ENTITYCUSTOMNAME", "");
-			this.add("ENTITYUNLOCNAME", "");
-			// Special handling for EntityItem
-			if(entity instanceof EntityItem)
-			{
-				EntityItem item = (EntityItem)entity;
-				// TODO:  Determine what to do about "tile" items.  These items show as tile.log.birch or tile.wood.birch.
-								
-				this.add("ENTITYNAME", item.getItem().getUnlocalizedName().replaceAll("item\\.", ""));
-				if(item.hasCustomName())
-					this.add("ENTITYCUSTOMNAME", item.getCustomNameTag());		
-				this.add("ENTITYUNLOCNAME", item.getItem().getUnlocalizedName().replaceAll("item\\.", ""));			
-			}
-			else
-			{
-				this.add("ENTITYNAME", entity.getName());				
-			}			
-			this.add("ENTITYUUID", entity.getUniqueID().toString());
-			this.add("ENTITYXPOSF",entity.getPositionVector().x);
-			this.add("ENTITYYPOSF",entity.getPositionVector().y);
-			this.add("ENTITYZPOSF",entity.getPositionVector().z);
-			this.add("ENTITYXPOS",entity.getPosition().getX());
-			this.add("ENTITYYPOS",entity.getPosition().getY());
-			this.add("ENTITYZPOS",entity.getPosition().getZ());
-			this.add("ENTITYTAGS", entity.getTags().toString());
-			this.add("ENTITYPITCH", pitch);
-			this.add("ENTITYYAW", realYaw);
-			this.add("ENTITYPITCHFROMPLAYER", (int)pitchFromPlayer);
-			this.add("ENTITYYAWFROMPLAYER", (int)yawFromPlayer);
-			this.add("ENTITYDIR", direction);
+			this.add("INDEX", i);
 			this.add("ENTITYDISTANCE", entities.get(i).getKey());
 
-			this.add("ENTITYDX",dx);
-			this.add("ENTITYDY",dy);
-			this.add("ENTITYDZ",dz);
-			
-			if(entity instanceof EntityLivingBase) {
-				EntityLivingBase elb = (EntityLivingBase)entity;
-				this.add("ENTITYHEALTH", (int)elb.getHealth());
-				this.add("ENTITYMAXHEALTH", (int)elb.getMaxHealth());
-			}
-
-			// Equipment
-			List<ItemStack> list = new ArrayList<ItemStack>();
-			for(ItemStack item : entity.getEquipmentAndArmor()) {
-				list.add(item);
-			}
-
-			for (int i1 = 0; i1 < list.size(); i1++) {
-				ItemStack itemStack = list.get(i1);
-				Item item = itemStack.getItem();
-				String slot = indexToEquipment[i1];
-				this.add("ENTITY" + slot + "NAME", itemStack.getDisplayName());
-				this.add("ENTITY" + slot + "ID", Game.getItemName(item));
-				this.add("ENTITY" + slot + "NID", Item.getIdFromItem(item));
-				this.add("ENTITY" + slot + "DAMAGE", itemStack.getItemDamage());
-				this.add("ENTITY" + slot + "COUNT", itemStack.getCount());
-
-				NBTTagList enchantments = itemStack.getEnchantmentTagList();
-				if(enchantments != null && !enchantments.hasNoTags()) {
-					StringBuilder enchantmentsBuilder = new StringBuilder();
-					for(int j = 0; j < enchantments.tagCount(); j++) {
-						NBTTagCompound enchantment = enchantments.getCompoundTagAt(j);
-						Short level = enchantment.getShort("lvl");
-						Short id = enchantment.getShort("id");
-						Enchantment e = Enchantment.getEnchantmentByID(id);
-						if(e != null)
-							enchantmentsBuilder.append(e.getTranslatedName(level)).append(j != enchantments.tagCount() - 1 ? "," : "");
-						else
-							System.err.println("Something went wrong white getting the enchantments: " + id + ":" + level);
-					}
-					this.add("ENTITY" + slot + "ENCHANTMENTS", enchantmentsBuilder.toString());
-				} else {
-					this.add("ENTITY" + slot + "ENCHANTMENTS", "");
-				}
+			for(EntityVariableProvider provider : entityVariableProviders) {
+				if(provider.superclassOf(entity))
+					provider.addVariables(this,entity);
 			}
 
 			this.end();
@@ -199,48 +103,26 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	}
 
-	// Calculates based on "REAL" yaw where 0 & 360 = North, 180 = South, and so on.
-	// Minecraft (F3 menu) does not use this.
-	private String calculatedDirection(double yaw) {
-		float dividePoint = 22.5F;
-		if( yaw > 1*dividePoint && yaw < 3 * dividePoint )
-			return "NORTHEAST";
-		else if ( yaw > 3*dividePoint && yaw < 5*dividePoint )
-			return "EAST"; 
-		else if ( yaw > 5*dividePoint && yaw < 7*dividePoint )
-			return "SOUTHEAST";
-		else if ( yaw > 7*dividePoint && yaw < 9*dividePoint )
-			return "SOUTH";
-		else if ( yaw > 9*dividePoint && yaw < 11*dividePoint )
-			return "SOUTHWEST";
-		else if ( yaw > 11*dividePoint && yaw < 13*dividePoint )
-			return "WEST";
-		else if ( yaw > 13*dividePoint && yaw < 15*dividePoint )
-			return "NORTHWEST";
-		else
-			return "NORTH";		
-	}
-
-	private List<Entry2<Float,Entity>> filterEntities() {
+	private List<Entry2<Float, Entity>> filterEntities() {
 		List<Entity> entities = getEntities();
 		List<Entity> filtered = new ArrayList<Entity>();
 		for (int i = 0; i < entities.size(); i++) {
 			Entity entity = entities.get(i);
-			if(filter.allowed(entity)) {
+			if (filter.allowed(entity)) {
 				filtered.add(entity);
 			}
 		}
 		return sortEntites(filtered);
 	}
 
-	private List<Entry2<Float,Entity>> sortEntites(List<Entity> entities) {
+	private List<Entry2<Float, Entity>> sortEntites(List<Entity> entities) {
 
-		List<Entry2<Float,Entity>> entitieDist = new ArrayList<Entry2<Float, Entity>>();
+		List<Entry2<Float, Entity>> entitieDist = new ArrayList<Entry2<Float, Entity>>();
 
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 
-		for(Entity entity : entities) {
-			entitieDist.add(new Entry2<Float, Entity>(entity.getDistance(player),entity));
+		for (Entity entity : entities) {
+			entitieDist.add(new Entry2<Float, Entity>(entity.getDistance(player), entity));
 		}
 
 		Collections.sort(entitieDist, new Comparator<Entry2<Float, Entity>>() {
@@ -251,6 +133,10 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 		});
 
 		return entitieDist;
+	}
+
+	public void addVar(String key, Object object) {
+		this.add(key,object);
 	}
 
 	private List<Entity> getEntities() {
@@ -264,8 +150,9 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	@Override
 	public void onInit() {
-		for( ScriptContext ctx : ScriptContext.getAvailableContexts() ) {
+		for (ScriptContext ctx : ScriptContext.getAvailableContexts()) {
 			ctx.getCore().registerIterator(NAME, this.getClass());
 		}
+		setupVariableProvider();
 	}
 }
