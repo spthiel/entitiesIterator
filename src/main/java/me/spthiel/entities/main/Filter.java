@@ -2,6 +2,7 @@ package me.spthiel.entities.main;
 
 import me.spthiel.entities.JSON.JSONArray;
 import me.spthiel.entities.JSON.JSONObject;
+import me.spthiel.entities.main.entries.Entry2;
 import me.spthiel.entities.main.entries.Entry4;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -9,12 +10,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class Filter{
 
 	private List<Entry4<List<EntityTypes>, String, Boolean, Class<? extends Entity>>> filters;
-	private int range;
+	private int range;	
+	private Comparator<Entry2<Float, Entity>> comperator;
 	private static final String[] entityClassPrefixes = {
 			"net.minecraft.entity.monster.Entity",
 			"net.minecraft.entity.item.Entity",
@@ -39,6 +42,23 @@ public class Filter{
 			range = json.getInt("range");
 		} else {
 			range = -1;
+		}
+		if(json.has("sort")) {
+			String sort = json.getString("sort").toLowerCase();
+			if(sort.contains("xpos"))
+				comperator = SortComperators.XPos();
+			if(sort.contains("ypos"))
+				comperator = SortComperators.YPos();
+			if(sort.contains("zpos"))
+				comperator = SortComperators.ZPos();
+			else 
+				comperator = SortComperators.Distance();
+			
+			if(sort.contains("desc") || sort.contains("dsc"))
+				comperator = comperator.reversed();
+			
+		} else {
+			comperator = SortComperators.Distance();			
 		}
 		if (json.has("filters") || json.has("filter")) {
 			Object o = null;
@@ -184,6 +204,10 @@ public class Filter{
 		if(false) {
 			System.out.println(s);
 		}
+	}
+	
+	public Comparator<Entry2<Float, Entity>> getComperator() {
+		return comperator;
 	}
 
 	@Override

@@ -117,22 +117,17 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	private List<Entry2<Float, Entity>> sortEntites(List<Entity> entities) {
 
-		List<Entry2<Float, Entity>> entitieDist = new ArrayList<Entry2<Float, Entity>>();
+		List<Entry2<Float, Entity>> sortedEntities = new ArrayList<Entry2<Float, Entity>>();
 
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 
 		for (Entity entity : entities) {
-			entitieDist.add(new Entry2<Float, Entity>(entity.getDistance(player), entity));
+			sortedEntities.add(new Entry2<Float, Entity>(entity.getDistance(player), entity));
 		}
 
-		Collections.sort(entitieDist, new Comparator<Entry2<Float, Entity>>() {
-			@Override
-			public int compare(Entry2<Float, Entity> o1, Entry2<Float, Entity> o2) {
-				return o1.getKey().compareTo(o2.getKey());
-			}
-		});
+		Collections.sort(sortedEntities, this.filter.getComperator());
 
-		return entitieDist;
+		return sortedEntities;
 	}
 
 	public void addVar(String key, Object object) {
