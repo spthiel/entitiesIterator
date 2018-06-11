@@ -47,9 +47,9 @@ public class Filter{
 			String sort = json.getString("sort").toLowerCase();
 			if(sort.contains("xpos"))
 				comperator = SortComperators.XPos();
-			if(sort.contains("ypos"))
+			else if(sort.contains("ypos"))
 				comperator = SortComperators.YPos();
-			if(sort.contains("zpos"))
+			else if(sort.contains("zpos"))
 				comperator = SortComperators.ZPos();
 			else 
 				comperator = SortComperators.Distance();
@@ -63,7 +63,7 @@ public class Filter{
 		if (json.has("filters") || json.has("filter")) {
 			Object o = null;
 			if(json.has("filters"))
-			  o = json.get("filters");
+				o = json.get("filters");
 			if (json.has("filter"))
 				o = json.get("filter");
 			if (o instanceof String) {
