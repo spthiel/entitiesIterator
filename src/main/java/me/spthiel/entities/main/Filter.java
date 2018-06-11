@@ -67,7 +67,7 @@ public class Filter{
 			}
 		}
 
-		if(filters == null) {
+		if(filters == null || filters.isEmpty()) {
 			debug("Out filter");
 			return true;
 		}
