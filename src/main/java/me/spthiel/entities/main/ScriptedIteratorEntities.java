@@ -2,7 +2,6 @@ package me.spthiel.entities.main;
 
 import me.spthiel.entities.JSON.JSONException;
 import me.spthiel.entities.ModuleInfo;
-import me.spthiel.entities.main.entries.Entry2;
 import me.spthiel.entities.main.variableprovider.BaseEntityProvider;
 import me.spthiel.entities.main.variableprovider.ItemEntityProvider;
 import me.spthiel.entities.main.variableprovider.LivingEntityProvider;
@@ -12,21 +11,12 @@ import net.eq2online.macros.scripting.api.IMacro;
 import net.eq2online.macros.scripting.api.IScriptActionProvider;
 import net.eq2online.macros.scripting.api.IScriptedIterator;
 import net.eq2online.macros.scripting.parser.ScriptContext;
-import net.eq2online.util.Game;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.math.Vec3d;
+
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -65,7 +55,7 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 		try {
 			this.filter = new Filter(specifier);
-			this.populate(this.filterEntities());
+			this.populate(this.filterAndSortEntities());
 		} catch (JSONException e) {
 			provider.actionAddChatMessage("JSONException: " + e.getMessage());
 		} catch (Exception e) {
@@ -85,13 +75,13 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 					"HELMET"
 			};
 
-	private void populate(List<Entry2<Float, Entity>> entities) {
+	private void populate(List<EntityWithDistance> entities) {
 		for (int i = 0; i < entities.size(); i++) {
-			Entity entity = entities.get(i).getValue();
+			Entity entity = entities.get(i).entity;
 
 			this.begin();
 			this.add("INDEX", i);
-			this.add("ENTITYDISTANCE", entities.get(i).getKey());
+			this.add("ENTITYDISTANCE", entities.get(i).distance);
 
 			for(EntityVariableProvider provider : entityVariableProviders) {
 				if(provider.superclassOf(entity))
@@ -103,36 +93,36 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	}
 
-	private List<Entry2<Float, Entity>> filterEntities() {
+	private List<EntityWithDistance> filterAndSortEntities() {
+		List<Entity> entities = filterEntities();
+		return calculateDistanceAndSort(entities);
+	}
+
+	private List<Entity> filterEntities() {
 		List<Entity> entities = getEntities();
 		List<Entity> filtered = new ArrayList<Entity>();
-		for (int i = 0; i < entities.size(); i++) {
-			Entity entity = entities.get(i);
-			if (filter.allowed(entity)) {
+
+		for (Entity entity : entities) {
+			if (filter.isAllowed(entity)) {
 				filtered.add(entity);
 			}
 		}
-		return sortEntites(filtered);
+		return filtered;
 	}
 
-	private List<Entry2<Float, Entity>> sortEntites(List<Entity> entities) {
-
-		List<Entry2<Float, Entity>> entitieDist = new ArrayList<Entry2<Float, Entity>>();
-
+	private List<EntityWithDistance> calculateDistanceAndSort(List<Entity> entities) {
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 
+		List<EntityWithDistance> entityDists = new ArrayList<>();
+
 		for (Entity entity : entities) {
-			entitieDist.add(new Entry2<Float, Entity>(entity.getDistance(player), entity));
+			entityDists.add(new EntityWithDistance(entity, entity.getDistance(player)));
 		}
 
-		Collections.sort(entitieDist, new Comparator<Entry2<Float, Entity>>() {
-			@Override
-			public int compare(Entry2<Float, Entity> o1, Entry2<Float, Entity> o2) {
-				return o1.getKey().compareTo(o2.getKey());
-			}
-		});
+		// sort the entities by distance
+		entityDists.sort(Comparator.comparing(o -> o.distance));
 
-		return entitieDist;
+		return entityDists;
 	}
 
 	public void addVar(String key, Object object) {
