@@ -27,13 +27,12 @@ public class Filter{
 
 	public Filter(String param) throws Exception{
 
+		filters = null;
 		if(param == null) {
-			filters = null;
 			range = -1;
 			return;
 		}
 
-		filters = new ArrayList<Entry4<List<EntityTypes>, String, Boolean, Class<? extends Entity>>>();
 		JSONObject json = new JSONObject(param);
 		if(json.has("range")) {
 			range = json.getInt("range");
@@ -41,6 +40,7 @@ public class Filter{
 			range = -1;
 		}
 		if (json.has("filters") || json.has("filter")) {
+			filters = new ArrayList<Entry4<List<EntityTypes>, String, Boolean, Class<? extends Entity>>>();
 			Object o = null;
 			if(json.has("filters"))
 			  o = json.get("filters");
