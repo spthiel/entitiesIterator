@@ -80,6 +80,12 @@ public class BaseEntityProvider extends EntityVariableProvider {
 			addVariable(iterator, slot + "damage", itemStack.getItemDamage());
 			addVariable(iterator, slot + "count", itemStack.getCount());
 
+			NBTTagCompound compound = itemStack.getTagCompound();
+			if(compound != null)
+				addVariable(iterator, slot + "tag", itemStack.getTagCompound().toString());
+			else
+				addVariable(iterator, slot + "tag", "[]");
+
 			NBTTagList enchantments = itemStack.getEnchantmentTagList();
 			if(!enchantments.hasNoTags()) {
 				StringBuilder enchantmentsBuilder = new StringBuilder();
@@ -94,7 +100,6 @@ public class BaseEntityProvider extends EntityVariableProvider {
 						System.err.println("Something went wrong white getting the enchantments: " + id + ":" + level);
 				}
 				addVariable(iterator,slot + "ENCHANTMENTS", enchantmentsBuilder.toString());
-			} else {
 			}
 		}
 
@@ -123,7 +128,7 @@ public class BaseEntityProvider extends EntityVariableProvider {
 
 	// Calculates based on "REAL" yaw where 0 & 360 = North, 180 = South, and so on.
 	// Minecraft (F3 menu) does not use this.
-	private static String getDirectionFromYaw(double yaw) {
+	private String getDirectionFromYaw(double yaw) {
 		float dividePoint = 22.5F; // 360/16
 		double dividedYaw = yaw/dividePoint;
 		

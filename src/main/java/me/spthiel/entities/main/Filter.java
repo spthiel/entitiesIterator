@@ -41,8 +41,10 @@ public class Filter{
 			range = -1;
 		}
 		if (json.has("filters") || json.has("filter")) {
-			Object o = json.get("filters");
-			if (o == null)
+			Object o = null;
+			if(json.has("filters"))
+			  o = json.get("filters");
+			if (json.has("filter"))
 				o = json.get("filter");
 			if (o instanceof String) {
 				filters.add(newEntry(null, (String) o, false, null));
