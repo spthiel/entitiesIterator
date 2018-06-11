@@ -34,6 +34,7 @@ public enum EntityTypes {
 	}
 
 	public static List<EntityTypes> getApplicableTypes(String regex) {
+		regex = regex.toLowerCase();
 		List<EntityTypes> out = new ArrayList<EntityTypes>();
 		for(EntityTypes type : EntityTypes.values()) {
 			for(String s : type.formatted) {

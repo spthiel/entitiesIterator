@@ -85,9 +85,9 @@ public class Filter{
 
 			String entityName;
 			if(entity instanceof EntityItem)
-				entityName = ((EntityItem)entity).getItem().getUnlocalizedName().replaceAll("item\\.", "");
+				entityName = ((EntityItem)entity).getItem().getUnlocalizedName().replaceAll("item\\.", "").toLowerCase();
 			else
-				entityName = entity.getName();
+				entityName = entity.getName().toLowerCase();
 
 			if(filter.getValue() != null && !entityName.matches(filter.getValue())) {
 				debug("continue 1: " + entityName + " " + filter.getValue());
@@ -142,7 +142,7 @@ public class Filter{
 			toPut.setKey(EntityTypes.getApplicableTypes(object.getString("type")));
 
 		if (object.has("name"))
-			toPut.setValue(object.getString("name"));
+			toPut.setValue(object.getString("name").toLowerCase());
 
 		if (object.has("inverse"))
 			toPut.setValue2(object.getBoolean("inverse"));
