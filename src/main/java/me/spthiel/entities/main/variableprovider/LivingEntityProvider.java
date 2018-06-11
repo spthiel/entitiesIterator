@@ -3,7 +3,6 @@ package me.spthiel.entities.main.variableprovider;
 import me.spthiel.entities.main.EntityVariableProvider;
 import me.spthiel.entities.main.ScriptedIteratorEntities;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 
 public class LivingEntityProvider extends EntityVariableProvider {
