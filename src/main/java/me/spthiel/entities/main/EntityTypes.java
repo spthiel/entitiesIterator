@@ -48,7 +48,7 @@ public enum EntityTypes {
 	}
 
 	public boolean isOfAny(Entity entity) {
-		for(Class mcclass : minecraftclass) {
+		for(Class<? extends Entity> mcclass : minecraftclass) {
 			if(mcclass.isInstance(entity))
 				return true;
 		}
