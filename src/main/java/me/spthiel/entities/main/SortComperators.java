@@ -9,41 +9,21 @@ public abstract class SortComperators {
 
 	public static Comparator<Entry2<Float, Entity>> Distance()
 	{
-		return new Comparator<Entry2<Float, Entity>>() {
-		@Override
-		public int compare(Entry2<Float, Entity> o1, Entry2<Float, Entity> o2) {
-			return o1.getKey().compareTo(o2.getKey());
-		}
-		};
+		return Comparator.comparing(Entry2::getKey);
 	}
 	
 	public static Comparator<Entry2<Float, Entity>> XPos()
 	{
-		return new Comparator<Entry2<Float, Entity>>() {
-		@Override
-		public int compare(Entry2<Float, Entity> o1, Entry2<Float, Entity> o2) {
-			return Double.compare(o1.getValue().getPositionVector().x, o2.getValue().getPositionVector().x);					
-			}
-		};
+		return Comparator.comparingDouble(o -> o.getValue().getPositionVector().x);
 	}
 	
 	public static Comparator<Entry2<Float, Entity>> YPos()
 	{
-		return new Comparator<Entry2<Float, Entity>>() {
-		@Override
-		public int compare(Entry2<Float, Entity> o1, Entry2<Float, Entity> o2) {
-			return Double.compare(o1.getValue().getPositionVector().y, o2.getValue().getPositionVector().y);					
-			}
-		};
+		return Comparator.comparingDouble(o -> o.getValue().getPositionVector().y);
 	}
 	
 	public static Comparator<Entry2<Float, Entity>> ZPos()
 	{
-		return new Comparator<Entry2<Float, Entity>>() {
-		@Override
-		public int compare(Entry2<Float, Entity> o1, Entry2<Float, Entity> o2) {
-			return Double.compare(o1.getValue().getPositionVector().z, o2.getValue().getPositionVector().z);					
-			}
-		};
+		return Comparator.comparingDouble(o -> o.getValue().getPositionVector().z);
 	}
 }
