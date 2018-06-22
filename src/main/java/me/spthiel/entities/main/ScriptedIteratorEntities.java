@@ -80,7 +80,9 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 			this.begin();
 			this.add("INDEX", i);
-			this.add("ENTITYDISTANCE", entities.get(i).getKey());
+			float distance = entities.get(i).getKey();
+			this.add("ENTITYDISTANCE", distance);						
+			this.add("ENTITYDISTINT", (int)distance); // INT version of distance.
 
 			for(EntityVariableProvider provider : entityVariableProviders) {
 				if(provider.superclassOf(entity))
