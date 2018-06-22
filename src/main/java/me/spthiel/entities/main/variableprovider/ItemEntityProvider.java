@@ -36,10 +36,8 @@ public class ItemEntityProvider extends EntityVariableProvider {
 		addVariable(iterator, "maxdamage", tem.getMaxDamage());
 		addVariable(iterator, "metadata", tem.getMetadata());
 		addVariable(iterator, "enchanted", tem.isItemEnchanted());
-		addVariable(iterator, "stackable", tem.isStackable());
-
-		Item i = tem.getItem();
-		addVariable(iterator, "unlocalizedname", i.getUnlocalizedName());
+		addVariable(iterator, "stackable", tem.isStackable());		
+		addVariable(iterator, "unlocalizedname", tem.getUnlocalizedName());
 
 	}
 
