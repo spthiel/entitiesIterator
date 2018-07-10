@@ -151,8 +151,10 @@ public class Filter{
 			if(!found) {
 				System.err.println("Unable to locate class with suffix: " + suffix);
 				Game.addChatMessage("Unable to locate class with suffix: " + suffix);
-			}
-			
+				// This will prevent anything from matching on this.
+				inverse = false;
+				toPut.setName("ThisIsInvalid");
+			}			
 		}
 
 		if(inverse)
