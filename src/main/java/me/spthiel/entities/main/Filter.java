@@ -3,7 +3,6 @@ package me.spthiel.entities.main;
 import me.spthiel.entities.JSON.JSONArray;
 import me.spthiel.entities.JSON.JSONObject;
 import me.spthiel.entities.main.entries.Entry2;
-import me.spthiel.entities.main.entries.Entry3;
 import me.spthiel.entities.main.entries.FilterEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -37,6 +36,7 @@ public class Filter{
 		inverseFilters = null;
 		if(param == null) {
 			range = -1;
+			comperator = SortComperators.Distance();
 			return;
 		}
 
