@@ -4,6 +4,7 @@ import me.spthiel.entities.JSON.JSONArray;
 import me.spthiel.entities.JSON.JSONObject;
 import me.spthiel.entities.main.entries.Entry2;
 import me.spthiel.entities.main.entries.FilterEntry;
+import net.eq2online.util.Game;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
@@ -147,8 +148,11 @@ public class Filter{
 
 				}
 			}
-			if(!found)
+			if(!found) {
 				System.err.println("Unable to locate class with suffix: " + suffix);
+				Game.addChatMessage("Unable to locate class with suffix: " + suffix);
+			}
+			
 		}
 
 		if(inverse)
