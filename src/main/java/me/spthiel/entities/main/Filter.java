@@ -24,7 +24,8 @@ public class Filter{
 			"net.minecraft.entity.boss.Entity",
 			"net.minecraft.entity.projectile.Entity",
 			"net.minecraft.entity.Entity",
-			"net.minecraft.client.entity.Entity" // Added for PlayerSP
+			"net.minecraft.client.entity.Entity", // Added for PlayerSP
+			""
 	};
 
 	private @Nullable List<FilterEntry> inverseFilters;
