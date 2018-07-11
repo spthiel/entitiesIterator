@@ -75,6 +75,12 @@ afterEvaluate {
         baseName = "module_" + archivesBaseName
         classifier = "$apiVersion-$modVersion-" + jar.classifier
         extension = "jar"
+        manifest {
+        	attributes("Specification-Version": version,
+				"Specification-Title": archivesBaseName,
+				"Implementation-Title": baseName + "-" + version + "-" + jar.classifier +"." + extension,
+				"Implementation-Version": macros)
+    	}
     }
     
     // Same for the source jar

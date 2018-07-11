@@ -9,6 +9,7 @@ public abstract class ModuleInfo {
      * Target API version
      */
     public static final int API_VERSION = 26;
+    public static final String MODULENAME = "ENTITIESITERATOR"; 
 
     /**
      * Private ctor, no instances 
