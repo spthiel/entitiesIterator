@@ -67,8 +67,8 @@ public class Filter{
 			comperator = SortComperators.Distance();			
 		}
 		if (json.has("filters") || json.has("filter")) {
-			filters = new ArrayList<>();
-			inverseFilters = new ArrayList<>();
+			filters = new ArrayList<FilterEntry>();
+			inverseFilters = new ArrayList<FilterEntry>();
 
 			Object o = null;
 			if(json.has("filters"))

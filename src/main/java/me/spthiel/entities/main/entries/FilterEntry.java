@@ -41,7 +41,7 @@ public class FilterEntry {
 
 		String entityName;
 		if(entity instanceof EntityItem)
-			entityName = ((EntityItem)entity).getItem().getUnlocalizedName().replaceAll("item\\.", "").toLowerCase();
+			entityName = ((EntityItem)entity).getEntityItem().getUnlocalizedName().replaceAll("item\\.", "").toLowerCase();
 		else
 			entityName = entity.getName().toLowerCase();
 

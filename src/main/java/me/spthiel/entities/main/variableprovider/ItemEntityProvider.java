@@ -28,7 +28,7 @@ public class ItemEntityProvider extends EntityVariableProvider {
 		addVariable(iterator, "owner", item.getOwner());
 		addVariable(iterator, "thrower", item.getThrower());
 
-		ItemStack tem = item.getItem();
+		ItemStack tem = item.getEntityItem();
 		addVariable(iterator, "name", translate(tem.getUnlocalizedName()));
 		addVariable(iterator, "count", tem.getCount());
 		addVariable(iterator, "displayname", tem.getDisplayName());

@@ -95,7 +95,7 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 	private List<Entry2<Float, Entity>> filterEntities() {
 		List<Entity> entities = getEntities();
-		List<Entity> filtered = new ArrayList<>();
+		List<Entity> filtered = new ArrayList<Entity>();
 		for (int i = 0; i < entities.size(); i++) {
 			Entity entity = entities.get(i);
 			if (filter.allowed(entity)) {
@@ -111,7 +111,10 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 
-		entities.forEach(entity -> sortedEntities.add(new Entry2<>(entity.getDistance(player), entity)));
+		//entities.forEach(entity -> sortedEntities.add(new Entry2<Float, Entity>(entity.getDistance(player), entity)));
+		for (Entity entity : entities){
+			sortedEntities.add(new Entry2<Float, Entity>(entity.getDistanceToEntity(player), entity));
+		}		
 
 		sortedEntities.sort(this.filter.getComperator());
 

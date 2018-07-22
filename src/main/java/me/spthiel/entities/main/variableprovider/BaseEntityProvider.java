@@ -44,9 +44,9 @@ public class BaseEntityProvider extends EntityVariableProvider {
 		addVariable(iterator, "type", entity.getClass().getSimpleName().replace("Entity", ""));
 		addVariable(iterator, "name", entity.getName());
 		addVariable(iterator, "uuid", entity.getUniqueID().toString());
-		addVariable(iterator, "xposf", entity.getPositionVector().x);
-		addVariable(iterator, "yposf", entity.getPositionVector().y);
-		addVariable(iterator, "zposf", entity.getPositionVector().z);
+		addVariable(iterator, "xposf", entity.getPositionVector().xCoord);
+		addVariable(iterator, "yposf", entity.getPositionVector().yCoord);
+		addVariable(iterator, "zposf", entity.getPositionVector().zCoord);
 		addVariable(iterator, "xpos", entity.getPosition().getX());
 		addVariable(iterator, "ypos", entity.getPosition().getY());
 		addVariable(iterator, "zpos", entity.getPosition().getZ());
@@ -55,9 +55,9 @@ public class BaseEntityProvider extends EntityVariableProvider {
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 		Vec3d playervec = player.getPositionVector();
 		Vec3d entityvec = entity.getPositionVector();
-		double dx = playervec.x-entityvec.x;
-		double dy = playervec.y-entityvec.y;
-		double dz = playervec.z-entityvec.z;
+		double dx = playervec.xCoord-entityvec.xCoord;
+		double dy = playervec.yCoord-entityvec.yCoord;
+		double dz = playervec.zCoord-entityvec.zCoord;
 
 		addVariable(iterator,"dx", dx);
 		addVariable(iterator,"dy", dy);
@@ -87,7 +87,7 @@ public class BaseEntityProvider extends EntityVariableProvider {
 				addVariable(iterator, slot + "tag", "[]");
 
 			NBTTagList enchantments = itemStack.getEnchantmentTagList();
-			if(!enchantments.hasNoTags()) {
+			if(enchantments != null && !enchantments.hasNoTags()) {
 				StringBuilder enchantmentsBuilder = new StringBuilder();
 				for(int j = 0; j < enchantments.tagCount(); j++) {
 					NBTTagCompound enchantment = enchantments.getCompoundTagAt(j);
