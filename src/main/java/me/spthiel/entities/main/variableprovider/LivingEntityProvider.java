@@ -27,8 +27,9 @@ public class LivingEntityProvider extends EntityVariableProvider {
 
 		addVariable(iterator, "PITCH", pitch);
 		addVariable(iterator, "YAW", realYaw);
-
+		
 		addVariable(iterator, "HEALTH", (int) elb.getHealth());
+		addVariable(iterator, "HEALTHF", elb.getHealth());
 		addVariable(iterator, "MAXHEALTH", (int) elb.getMaxHealth());
 	}
 }
