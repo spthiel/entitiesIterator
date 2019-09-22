@@ -5,7 +5,7 @@ function addTablerow(contents) {
     for(let i = 0; i < contents.length; i++) {
         let dom = document.createElement('div');
         dom.className = "table-row-item";
-        dom.innerHTML = contents[i];
+        dom.innerText = contents[i];
         row.appendChild(dom);
     }
     table.appendChild(row);
@@ -21,7 +21,7 @@ addTablerow(["ENTITYZPOSF","All entities","Z position of the entity as float."])
 addTablerow(["ENTITYXPOS","All entities","X position of the entity as integer."]);
 addTablerow(["ENTITYYPOS","All entities","Y position of the entity as integer."]);
 addTablerow(["ENTITYZPOS","All entities","Z position of the entity as integer."]);
-addTablerow(["ENTITYTAG","All entities","No clue."]);
+addTablerow(["ENTITYTAG","All entities","NBT of the Entity."]);
 addTablerow(["ENTITYDX","All entities","Difference of the x coordinate of the player and the entity."]);
 addTablerow(["ENTITYDY","All entities","Difference of the y coordinate of the player and the entity."]);
 addTablerow(["ENTITYDZ","All entities","Difference of the z coordinate of the player and the entity."]);
