@@ -44,6 +44,7 @@ addTablerow(["ENTITYYAWFROMPLAYER","All entities","Yaw the player has to look at
 addTablerow(["ENTITYNBT","All entities","NBT of the entity."]);
 addTablerow(["ENTITYNBTKEYS","All entities","Array of all the keys of the NBT of the entity."]);
 addTablerow(["ENTITYNBT<key>","All entities","Quick way to access value of a specififc key."]);
+addTablerow(["$l", "* key can take any of %ENTITYNBTKEYS%","",""]);
 addTablerow(["ENTITYDIR","All entities","Fuzzy direction in which the entity is."]);
 addTablerow(["$hl","Living entities"]);
 addTablerow(["ENTITYPITCH","Living entities","Pitch where the entity is looking at."]);
