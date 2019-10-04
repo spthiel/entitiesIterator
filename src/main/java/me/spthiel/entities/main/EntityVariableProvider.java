@@ -15,7 +15,7 @@ public abstract class EntityVariableProvider {
 	}
 
 	public void addVariable(ScriptedIteratorEntities iterator, String key, Object object) {
-		iterator.addVar("ENTITY" + key.toUpperCase(),object);
+		iterator.addVar("ENTITY" + key.toUpperCase(), object);
 	}
 
 	abstract public void addVariables(ScriptedIteratorEntities iterator, Entity entity);

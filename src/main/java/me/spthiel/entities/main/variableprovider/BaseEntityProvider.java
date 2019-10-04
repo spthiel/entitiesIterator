@@ -57,9 +57,9 @@ public class BaseEntityProvider extends EntityVariableProvider {
 		entity.writeToNBT(nbt);
 		addVariable(iterator, "nbt", nbt.toString());
 		Set<String> keys = nbt.getKeySet();
-		String[] keyArray = nbt.getKeySet().toArray(new String[keys.size()]);
-		addVariable(iterator, "nbtkeys", keyArray);
-		for (String key : keyArray) {
+		ArrayList<String> keyList = new ArrayList<>(keys);
+		addVariable(iterator, "nbtkeys", keyList);
+		for (String key : keyList) {
 			addVariable(iterator, "nbt" + key.replaceAll(" ",""), nbt.getTag(key).toString());
 		}
 		
