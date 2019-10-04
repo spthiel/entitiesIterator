@@ -106,7 +106,6 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 	}
 
 	private List<Entry2<Float, Entity>> sortEntites(List<Entity> entities) {
-
 		List<Entry2<Float, Entity>> sortedEntities = new ArrayList<Entry2<Float, Entity>>();
 
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
@@ -135,6 +134,7 @@ public class ScriptedIteratorEntities extends ScriptedIterator implements IScrip
 	public void onInit() {
 		for (ScriptContext ctx : ScriptContext.getAvailableContexts()) {
 			ctx.getCore().registerIterator(NAME, this.getClass());
+			System.out.println("[ITERATOR] Added to " + ctx.getName());
 		}
 		setupVariableProvider();
 	}

@@ -15,6 +15,7 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class BaseEntityProvider extends EntityVariableProvider {
 
@@ -51,7 +52,17 @@ public class BaseEntityProvider extends EntityVariableProvider {
 		addVariable(iterator, "ypos", entity.getPosition().getY());
 		addVariable(iterator, "zpos", entity.getPosition().getZ());
 		addVariable(iterator,"tag", entity.getTags().toString());
-
+		
+		NBTTagCompound nbt = new NBTTagCompound();
+		entity.writeToNBT(nbt);
+		addVariable(iterator, "nbt", nbt.toString());
+		Set<String> keys = nbt.getKeySet();
+		String[] keyArray = nbt.getKeySet().toArray(new String[keys.size()]);
+		addVariable(iterator, "nbtkeys", keyArray);
+		for (String key : keyArray) {
+			addVariable(iterator, "nbt" + key.replaceAll(" ",""), nbt.getTag(key).toString());
+		}
+		
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 		Vec3d playervec = player.getPositionVector();
 		Vec3d entityvec = entity.getPositionVector();
@@ -65,7 +76,7 @@ public class BaseEntityProvider extends EntityVariableProvider {
 
 
 		// Equipment
-		List<ItemStack> list = new ArrayList<ItemStack>();
+		List<ItemStack> list = new ArrayList<>();
 		for(ItemStack item : entity.getEquipmentAndArmor()) {
 			list.add(item);
 		}

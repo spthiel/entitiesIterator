@@ -28,11 +28,24 @@ body {
 	display: flex;
 	background-color: #f1f1f1;
 	padding: 10px;
+	border-top: 1px solid black;
+}
+
+.table-row.table-header {
+	border: 1px solid black;
 }
 
 .table-header {
 	background: rgba(0,0,0, .07);
 	border-bottom: 1px solid black;
+}
+
+.highlight {
+	background-color: #c0c0c0;
+}
+
+.little {
+	font-size: 10px;
 }
 
 .table-row-item {
@@ -44,5 +57,10 @@ body {
 	text-align: center;
 	margin: auto;
 	font-weight: 500;
-  	word-break: break-word;
+	word-break: break-word;
+	font-family: "Helvetica";
+}
+
+.table-header .table-row-item {
+    font-weight: 900;
 }
